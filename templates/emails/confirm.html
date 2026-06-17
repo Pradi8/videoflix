@@ -1,15 +1,44 @@
-<img src="cid:logo">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Mail bestätigen</title>
+</head>
+<body>
 
-<h1>Willkommen!</h1>
+<div style="display: flex;
+            justify-content: center;
+            align-items: center;">
+   <img src="cid:logo" alt="Logo" width="200">
+</div>
 
-<p>Bitte bestätige deine E-Mail {{ user }}</p>
+<p style="font-weight: 600;">
+   Dear
+   <span style="color: #2634DC;">{{ user }}</span>
+   Thank you for registering with
+   <span style="color: #2634DC;">Videoflix.</span>
+   To complete your registration and verify your email address, please click the link below:
+</p>
 
-<a href="{{ confirm_url }}"
+<a href="{{ url }}"
    style="display:inline-block;
           padding:12px 20px;
-          background:#007bff;
+          font-weight: 600;
+          background-color:#1222D9;
           color:#fff;
           text-decoration:none;
-          border-radius:6px;">
-   Konto bestätigen
+          border-radius:20px;">
+   Activate account
 </a>
+
+    <p style="font-weight: 600;">
+        If you did not create an account with us, please disregard this email.
+    </p>
+
+    <p style="font-weight: 600;">
+        Best regards,<br><br>
+        Your Videoflix Team
+    </p>
+
+</body>
+</html>

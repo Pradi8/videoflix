@@ -3,7 +3,12 @@ from rest_framework.views import APIView, Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from auth_app.api.serializers import CustomTokenObtainPairSerializer, RegistrationSerializer
+from django.contrib.auth.models import User
 from utils.email import send_email_user
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 
 class RegistrationView(APIView):
     """
@@ -20,27 +25,73 @@ class RegistrationView(APIView):
         data = {}
         if serializer.is_valid():
             user = serializer.save()
+            # Generate email verification token
+            token = default_token_generator.make_token(user)
+
+            # Encode user ID for use in URL
+            uidb64 = urlsafe_base64_encode(force_bytes(user.id))
             data = {
                 "user": {
                     "id": user.id,
                     "email": user.email
                 },
-                "token": str(CustomTokenObtainPairSerializer.get_token(user).access_token)
+                "token": str(token)
             }
+
+            # Send activation email with activation link
             send_email_user(
                 subject="Confirm your email",
                 template_name="emails/confirm.html",
-                context={"user": user},
+                context={"user": user, "url": f"http://localhost:8000/api/activate/{uidb64}/{token}/"},
                 to_email=user.email
             )
+            
+            # Ensure user cannot log in before activation
+            user.is_active = False
+            user.save()
+            
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+    
+class ActivateAccountView(APIView):
+    """
+    API endpoint to activate a user account via email link.
+
+    - Validates uidb64 and token from activation link
+    - Activates the user account if valid
+    """
+    permission_classes = [AllowAny]
+    def get(self, request, uidb64, token):
+        try:
+            # Decode user ID from base64
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {"error": "Invalid activation link"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate activation token
+        if not default_token_generator.check_token(user, token):
+            return Response(
+                {"error": "Invalid token"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Activate user account
+        user.is_active = True
+        user.save()
+
+        return Response(
+            {"message": "Account successfully activated"},
+            status=status.HTTP_200_OK
+        )
 class CookieTokenObtainPairView(TokenObtainPairView):
     """
     Custom view to handle user login and return JWT tokens in HttpOnly cookies.
-    - Accepts POST request with: username, password
+    - Accepts POST request with: email, password
     - Returns user info and sets access and refresh tokens in cookies on successful login
     """
 
@@ -63,7 +114,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 "email": user.email
             }
         })
-    
+
+        # Store access token in HttpOnly cookie
         response.set_cookie(
             key="access_token",
             value=str(access),
@@ -72,6 +124,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             samesite="Lax"
         )
 
+        # Store refresh token in HttpOnly cookie
         response.set_cookie(
             key="refresh_token",
             value=str(refresh),
@@ -84,7 +137,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
     
 class LogoutView(APIView):
     """ 
-    Deletes access and refresh tokens from cookies
+    Logs out the user by deleting authentication cookies.
     """
     
     permission_classes = [IsAuthenticated]
