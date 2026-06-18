@@ -1,7 +1,9 @@
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView, Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from auth_app.api.permissions import HasRefreshCookie
 from auth_app.api.serializers import CustomTokenObtainPairSerializer, RegistrationSerializer
 from django.contrib.auth.models import User
 from utils.email import send_email_user
@@ -94,6 +96,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
     - Accepts POST request with: email, password
     - Returns user info and sets access and refresh tokens in cookies on successful login
     """
+    permission_classes = [AllowAny]
 
     serializer_class = CustomTokenObtainPairSerializer
    
@@ -110,8 +113,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             "detail": "Login successful",
             "user": {
                 "id": user.id,
-                "username": user.username,
-                "email": user.email
+                "username": user.email
             }
         })
 
@@ -139,10 +141,20 @@ class LogoutView(APIView):
     """ 
     Logs out the user by deleting authentication cookies.
     """
+    # Ensures the user is authenticated and a refresh token cookie is present
+    permission_classes = [IsAuthenticated, HasRefreshCookie]
     
-    permission_classes = [IsAuthenticated]
     def post(self, request):
-        response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."}, status=status.HTTP_200_OK)
+        # Get refresh token from cookies
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        # If a refresh token exists, blacklist it so it can no longer be used
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        
+        response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."}, 
+                            status=status.HTTP_200_OK)
 
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
@@ -175,7 +187,7 @@ class CookieTokenRefreshView(TokenRefreshView):
         
         access_token = serializer.validated_data.get("access")
 
-        response = Response({"detail": "Token refreshed"})
+        response = Response({"detail": "Token refreshed", "access": "new_access_token"})
 
         response.set_cookie(
             key="access_token",

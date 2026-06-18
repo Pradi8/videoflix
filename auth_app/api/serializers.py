@@ -51,6 +51,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove default 'username' field from parent serializer
+        if "username" in self.fields:
+            self.fields.pop('username')
+
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
@@ -63,5 +69,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise serializers.ValidationError('invalid email or password')
         
-        data = super().validate({"username": user.username, "password": password})
+        data = super().validate({"username": user.email, "password": password})
         return data
