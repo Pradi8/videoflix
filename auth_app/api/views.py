@@ -4,7 +4,7 @@ from rest_framework.views import APIView, Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from auth_app.api.permissions import HasRefreshCookie
-from auth_app.api.serializers import CustomTokenObtainPairSerializer, RegistrationSerializer
+from auth_app.api.serializers import CustomTokenObtainPairSerializer, PasswordResetSerializer, RegistrationSerializer
 from django.contrib.auth.models import User
 from utils.email import send_email_user
 from django.utils.http import urlsafe_base64_encode
@@ -44,13 +44,9 @@ class RegistrationView(APIView):
             send_email_user(
                 subject="Confirm your email",
                 template_name="emails/confirm.html",
-                context={"user": user, "url": f"http://localhost:8000/api/activate/{uidb64}/{token}/"},
+                context={"user": user, "url": f"http://127.0.0.1:8000/api/activate/{uidb64}/{token}/"},
                 to_email=user.email
             )
-            
-            # Ensure user cannot log in before activation
-            user.is_active = False
-            user.save()
             
             return Response(data, status=status.HTTP_201_CREATED)
         else:
@@ -69,10 +65,17 @@ class ActivateAccountView(APIView):
             # Decode user ID from base64
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
+            print("Decoded UID:", uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return Response(
-                {"error": "Invalid activation link"},
+                {"error": "Invalid or expired activation link"},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if user.is_active:
+            return Response(
+                {"message": "Account already activated"},
+                status=status.HTTP_200_OK
             )
 
         # Validate activation token
@@ -150,9 +153,12 @@ class LogoutView(APIView):
 
         # If a refresh token exists, blacklist it so it can no longer be used
         if refresh_token:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-        
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except:
+                pass
+
         response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."}, 
                             status=status.HTTP_200_OK)
 
@@ -198,3 +204,60 @@ class CookieTokenRefreshView(TokenRefreshView):
         )
 
         return response
+    
+class PasswortResetEmailView(APIView):
+    """
+    API endpoint to initiate password reset by sending a reset email.
+    - Accepts POST request with: email
+    - Sends password reset email with tokenized link if user exists
+    """
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response(
+                {"error": "Email is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(email=email)
+            # Encode user id to uidb64
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+            # Send email
+            send_email_user(
+                subject="Reset your password",
+                template_name="emails/password_reset.html",
+                context={"url": f"http://127.0.0.1:8000/api/password_confirm/{uidb64}/{token}/"}, 
+                to_email=user.email
+            )
+        except User.DoesNotExist:
+            # do nothing to prevent user enumeration
+            pass 
+
+        return Response(
+            {"detail": "An email has been sent to reset your password."},
+            status=status.HTTP_200_OK
+        )
+
+class PasswordResetConfirmView(APIView):
+    """API endpoint to confirm password reset using a token."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                {"detail": "Password has been reset successfully."},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )

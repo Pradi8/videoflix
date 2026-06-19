@@ -165,6 +165,8 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
+# 24 hours
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

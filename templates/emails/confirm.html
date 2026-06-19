@@ -1,44 +1,37 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>E-Mail bestätigen</title>
-</head>
-<body>
-
-<div style="display: flex;
+  <head>
+    <meta charset="UTF-8" />
+    <title>Confirm your email</title>
+  </head>
+  <body>
+    <div style="display: flex;
             justify-content: center;
             align-items: center;">
-   <img src="cid:logo" alt="Logo" width="200">
-</div>
+      <img src="cid:logo" alt="Logo" width="200" />
+    </div>
 
-<p style="font-weight: 600;">
-   Dear
-   <span style="color: #2634DC;">{{ user }}</span>
-   Thank you for registering with
-   <span style="color: #2634DC;">Videoflix.</span>
-   To complete your registration and verify your email address, please click the link below:
-</p>
+    <p style="font-weight: 600;">
+      Dear
+      <span style="color: #2634DC;">{{ user }}</span>
+      Thank you for registering with
+      <span style="color: #2634DC;">Videoflix.</span>
+      To complete your registration and verify your email address, please click the link below:
+    </p>
 
-<a href="{{ url }}"
-   style="display:inline-block;
+    <a href="{{ url }}" style="display:inline-block;
           padding:12px 20px;
           font-weight: 600;
           background-color:#1222D9;
           color:#fff;
           text-decoration:none;
-          border-radius:20px;">
-   Activate account
-</a>
+          border-radius:20px;">Activate account</a>
+
+    <p style="font-weight: 600;">If you did not create an account with us, please disregard this email.</p>
 
     <p style="font-weight: 600;">
-        If you did not create an account with us, please disregard this email.
+      Best regards,<br /><br />
+      Your Videoflix Team
     </p>
-
-    <p style="font-weight: 600;">
-        Best regards,<br><br>
-        Your Videoflix Team
-    </p>
-
-</body>
+  </body>
 </html>
