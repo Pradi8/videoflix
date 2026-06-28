@@ -12,5 +12,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('password_reset/', PasswortResetEmailView.as_view(), name='password_reset'),
-    path('password_confirm/<str:uidb64>/<str:token>/', PasswordResetConfirmView.as_view(), name='password_confirm'),
+    path('password_confirm/<str:uid>/<str:token>/', PasswordResetConfirmView.as_view(), name='password_confirm'),
 ]

@@ -65,7 +65,6 @@ class ActivateAccountView(APIView):
             # Decode user ID from base64
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
-            print("Decoded UID:", uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return Response(
                 {"error": "Invalid or expired activation link"},
@@ -223,14 +222,14 @@ class PasswortResetEmailView(APIView):
         try:
             user = User.objects.get(email=email)
             # Encode user id to uidb64
-            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
             # Generate password reset token
             token = default_token_generator.make_token(user)
             # Send email
             send_email_user(
                 subject="Reset your password",
                 template_name="emails/password_reset.html",
-                context={"url": f"http://127.0.0.1:8000/api/password_confirm/{uidb64}/{token}/"}, 
+                context={"url": f"http://127.0.0.1:5500/pages/auth/confirm_password.html?uid={uid}&token={token}"},
                 to_email=user.email
             )
         except User.DoesNotExist:
@@ -243,21 +242,21 @@ class PasswortResetEmailView(APIView):
         )
 
 class PasswordResetConfirmView(APIView):
-    """API endpoint to confirm password reset using a token."""
     permission_classes = [AllowAny]
 
-    def post(self, request):
-        serializer = PasswordResetSerializer(data=request.data)
+    def post(self, request, uid, token):
+        serializer = PasswordResetSerializer(
+            data=request.data,
+            context={
+                "uid": uid,
+                "token": token,
+            }
+        )
 
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(
-                {"detail": "Password has been reset successfully."},
-                status=status.HTTP_200_OK,
-            )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
+            {"detail": "Password has been reset successfully."},
+            status=status.HTTP_200_OK,
         )

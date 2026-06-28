@@ -45,15 +45,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             is_active=False
         )
         return user
-
-    # def save(self):
-    #     pw = self.validated_data['password']
-    #     account = User(
-    #         username=self.validated_data['email'],
-    #         email=self.validated_data['email'])
-    #     account.set_password(pw)
-    #     account.save()
-    #     return account
     
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
@@ -89,26 +80,22 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 class PasswordResetSerializer(serializers.Serializer):
-    """Serializer for confirming password reset.
-        - Accepts 'userid', 'token', and 'new_password'
-        - Validates the reset token and updates the user's password
-    """
-    uidb64 = serializers.IntegerField()
-    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        uidb64 = attrs["uidb64"]
-        token = attrs["token"]
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError("Passwords do not match.")
 
-        # Ensure the user exists
+        uidb64 = self.context["uid"]
+        token = self.context["token"]
+
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid reset link.")
 
-        # Verify that the reset token is valid
         token_generator = PasswordResetTokenGenerator()
         if not token_generator.check_token(user, token):
             raise serializers.ValidationError("Invalid or expired token.")
@@ -118,10 +105,6 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def save(self):
         user = self.validated_data["user"]
-        confirm_password = self.validated_data["confirm_password"]
-
-        # Update the user's password
-        user.set_password(confirm_password)
+        user.set_password(self.validated_data["new_password"])
         user.save(update_fields=["password"])
-
         return user
