@@ -33,19 +33,6 @@ def create_thumbnail(sender, instance, created, **kwargs):
         # Save only the thumbnail_url field to the database. 
         instance.save(update_fields=["thumbnail_url"])
 
-# @receiver(post_save, sender=Video)
-# def generate_video_hls(sender, instance, created, **kwargs):
-#     """
-#     Signal receiver that automatically generates HLS files after a new Video object is created.
-#     """
-#     # Only generate HLS files if:
-#     # - a new video object was created
-#     # - a video file exists
-#     if created and instance.video_file:
-#         # Convert the uploaded video file into HLS format.
-#         # This creates the required .m3u8 playlists and .ts segments
-#         # for different resolutions (e.g. 480p, 720p, 1080p).
-#         HLSService.create_hls(instance)
 
 @receiver(post_save, sender=Video)
 def generate_video_hls(sender, instance, created, **kwargs):

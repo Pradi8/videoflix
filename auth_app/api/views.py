@@ -242,6 +242,11 @@ class PasswortResetEmailView(APIView):
         )
 
 class PasswordResetConfirmView(APIView):
+    """
+    API endpoint to confirm password reset and set a new password.
+    - Accepts POST request with: new_password, confirm_password
+    - Validates uid and token from the URL and resets the user's password if valid
+    """
     permission_classes = [AllowAny]
 
     def post(self, request, uid, token):

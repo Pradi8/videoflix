@@ -80,6 +80,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 class PasswordResetSerializer(serializers.Serializer):
+    """
+    Serializer for password reset.
+    - Accepts 'new_password' and 'confirm_password'
+    - Validates input data and resets the user's password
+    """
     new_password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 

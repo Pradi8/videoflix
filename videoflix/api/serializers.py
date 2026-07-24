@@ -3,6 +3,10 @@ from rest_framework import serializers
 from videoflix.models import Video
 
 class VideoSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Video model.
+    - Serializes the Video model fields and generates dynamic URLs for thumbnail and HLS playlist.
+    """
     # Use a custom method to generate the thumbnail URL dynamically.
     thumbnail_url = serializers.SerializerMethodField()
     # Use a custom method to generate the HLS URL dynamically.
