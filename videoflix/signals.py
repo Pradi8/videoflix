@@ -2,6 +2,8 @@ import os
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.files import File
+import django_rq
+from videoflix.service.hls import HLSService
 from .models import Video
 from utils.thumbnail import generate_thumbnail
 
@@ -29,5 +31,35 @@ def create_thumbnail(sender, instance, created, **kwargs):
             )
 
         # Save only the thumbnail_url field to the database. 
-        # This avoids unnecessary updates of other fields.
         instance.save(update_fields=["thumbnail_url"])
+
+# @receiver(post_save, sender=Video)
+# def generate_video_hls(sender, instance, created, **kwargs):
+#     """
+#     Signal receiver that automatically generates HLS files after a new Video object is created.
+#     """
+#     # Only generate HLS files if:
+#     # - a new video object was created
+#     # - a video file exists
+#     if created and instance.video_file:
+#         # Convert the uploaded video file into HLS format.
+#         # This creates the required .m3u8 playlists and .ts segments
+#         # for different resolutions (e.g. 480p, 720p, 1080p).
+#         HLSService.create_hls(instance)
+
+@receiver(post_save, sender=Video)
+def generate_video_hls(sender, instance, created, **kwargs):
+    """
+    Signal receiver that automatically generates HLS files after a new Video object is created.
+    """
+    # sOnly generate HLS files if:
+    # - a new video object was created
+    # - a video file exists
+    if created and instance.video_file:
+
+        queue = django_rq.get_queue("default")
+
+        queue.enqueue(
+            "videoflix.tasks.generate_hls_task",
+            instance.id
+        )

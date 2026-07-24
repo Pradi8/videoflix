@@ -18,3 +18,14 @@ class Video(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def hls_directory(self):
+        return f"movies/{self.id}"
+
+    def hls_master_path(self):
+        return f"movies/{self.id}/master.m3u8"
+
+    def hls_resolution_path(self, resolution):
+        return (
+            f"movies/{self.id}/{resolution}/index.m3u8"
+        )
