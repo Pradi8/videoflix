@@ -229,3 +229,6 @@ __marimo__/
 
 # User uploaded media
 /media/
+
+# Collected static files
+staticfiles/
