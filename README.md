@@ -29,10 +29,10 @@ Authentication is handled using JWT (JSON Web Tokens) and HTTP-only cookies to e
 
 ## 1. Clone the repository
   ```bash
-    git clone https://github.com/Pradi8/project.Quizly-backend  
+    git clone https://github.com/Pradi8/videoflix   
   ```  
   ```bash 
-    cd project.Quizly-backend
+    cd videoflix
   ```
 
 ## 2. Create a virtual environment
@@ -128,7 +128,7 @@ Steps:
 ```
 
 
-####  Docker Installation
+## 6. Docker Installation
 
 Docker is installed differently depending on the operating system. This document describes how to install Docker on **Windows**, **macOS**, and **Ubuntu/Debian Linux**.
 
@@ -256,7 +256,7 @@ docker compose version
 After successfully installing Docker, you can use it to create, run, and manage containers.
 
 
-### 2. Create your .env file
+### 7. Create your .env file
 
 ### Linux / macOS / Git Bash
 
