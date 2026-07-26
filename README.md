@@ -1,320 +1,246 @@
 # Videoflix API
 
 ## Overview
-Videoflix is a video streaming application built with the Django REST Framework. Users can browse and watch videos directly within the application.
-The platform supports multiple video resolutions, allowing users to watch videos in 480p, 720p, or 1080p, depending on their preferred video quality and available bandwidth.
-Authentication is handled using JWT (JSON Web Tokens) and HTTP-only cookies to ensure secure management of user data.
+
+Videoflix is a video streaming application built with the **Django REST Framework**. Users can browse and watch videos directly within the application.
+
+The platform supports multiple video resolutions, allowing users to watch videos in **480p, 720p, or 1080p**, depending on their preferred video quality and available bandwidth.
+
+Authentication is handled using **JWT (JSON Web Tokens)** and **HTTP-only cookies** to ensure secure management of user data.
 
 ---
 
 ## Features
+
 - User registration, login, and logout
 - Object-level permissions
 - JWT-based authentication
-- Video upload and management through the Django Admin Panel
+- HTTP-only cookies for secure token management
+- Video upload and management through the **Django Admin Panel**
 - Video streaming and playback
-- Support for multiple video resolutions: 480p, 720p, 1080p
+- Support for multiple video resolutions:
+  - 480p
+  - 720p
+  - 1080p
 - Automatic video transcoding into different resolutions
+- HLS-based video streaming
 - Protected API endpoints
 
 ---
 
-## Installation
+## Development
 
-### Requirements
-- Python 3.12
-- pip 26.1.1
-- ffmpeg
-- hls
+The application is fully containerized using Docker and Docker Compose.
 
-## 1. Clone the repository
-  ```bash
-    git clone https://github.com/Pradi8/videoflix   
-  ```  
-  ```bash 
-    cd videoflix
-  ```
+The project consists of the following main components:
 
-## 2. Create a virtual environment
-  ```bash 
-    python -m venv env
-  ```
+- **Django REST Framework** for the REST API
+- **PostgreSQL** for database management
+- **Redis** for background job queuing
+- **Django RQ** for managing background tasks
+- **RQ Worker** for processing asynchronous jobs
+- **FFmpeg** for video processing and transcoding
+- **HLS** for video streaming
+- **Gunicorn** for running the Django application
+- **WhiteNoise** for serving static files
+- **Docker** for containerization
 
-## 3. Activate the virtual environment
-### <b>Linux/Mac</b>
-```bash
-  source env/bin/activate  
-```
-### <b>Windows</b>
-```bash
-  env\Scripts\activate      
-```
+FFmpeg is installed automatically inside the Docker container during the image build.
 
-## 4. Install Python dependencies
-```bash
-  python -m pip install -r requirements.txt
-```
+Python dependencies are installed automatically from `requirements.txt` during the Docker image build.
 
-## 5. Install system dependencies
-
-### WSL / Linux (Ubuntu)
-
-#### Install FFmpeg
-
-```bash
-  sudo apt update
-  sudo apt install ffmpeg
-```
-
-#### Install Deno
-
-```bash
-    curl -fsSL https://deno.land/install.sh | sh
-```
-
-### Windows
-
-#### Install FFmpeg
-
-Download a Windows build from the official website:
-
-```bash
-  https://ffmpeg.org/download.html
-```
-
-or use a trusted build provider:
-
-```bash
-  https://www.gyan.dev/ffmpeg/builds/
-```
-Extract the downloaded archive
-
-Move it to a location such as:
-
-```bash
-  C:\ffmpeg
-```
-
-After extraction, your folder should look like:
-
-```bash
-  C:\ffmpeg\bin
-```
-
-Add FFmpeg to PATH
-
-Add the following path to your Windows environment variables:
-
-```bash
-  C:\ffmpeg\bin
-```
-
-Steps:
-
-1. Open System Environment Variables
-2. Click Environment Variables
-3. Select Path under System Variables
-4. Click Edit
-5. Add:
-
-```bash
-  C:\ffmpeg\bin
-```
-6. Save and close all dialogs
-7. Verify Installation
-   Open a new terminal and run:
-```bash
-  ffmpeg -version
-```
+PostgreSQL and Redis are started automatically as Docker containers using Docker Compose.
 
 
-## 6. Docker Installation
+## Requirements
 
-Docker is installed differently depending on the operating system. This document describes how to install Docker on **Windows**, **macOS**, and **Ubuntu/Debian Linux**.
+Before running the project, make sure the following software is installed:
 
-## Windows
+- Docker
+- Docker Compose
 
-### 1. Download Docker Desktop
+Docker Desktop includes Docker Engine and Docker Compose.
 
-Download Docker Desktop from the official Docker website:
+Download Docker Desktop:
 
-[Download Docker Desktop](https://www.docker.com/products/docker-desktop/?utm_source=chatgpt.com)
+https://www.docker.com/products/docker-desktop/
 
-### 2. Start the Installation
-
-Run the downloaded installer and follow the installation instructions.
-
-If required, restart Windows after the installation.
-
-### 3. Start Docker Desktop
-
-Open Docker Desktop and wait until Docker has fully started.
-
-### 4. Verify the Installation
-
-Open **PowerShell** and run the following command:
-
-```powershell
-docker --version
-```
-
-You can then test whether Docker is working correctly with:
-
-```powershell
-docker run hello-world
-```
-
----
-
-## macOS
-
-### 1. Download Docker Desktop
-
-Download Docker Desktop from the official Docker website:
-
-[Download Docker Desktop](https://www.docker.com/products/docker-desktop/?utm_source=chatgpt.com)
-
-### 2. Select the Correct Version
-
-Choose the appropriate version for your Mac:
-
-* **Apple Silicon** (e.g., M1, M2, M3, M4)
-* **Intel**
-
-### 3. Install Docker Desktop
-
-Install Docker Desktop and start the application.
-
-### 4. Verify the Installation
-
-Open the Terminal and run:
+Verify the installation:
 
 ```bash
 docker --version
-```
-
-You can then test Docker with:
-
-```bash
-docker run hello-world
-```
-
----
-
-## Ubuntu / Debian Linux
-
-On Ubuntu and Debian, Docker can be installed using the official Docker repository.
-
-### 1. Update Package Lists
-
-```bash
-sudo apt update
-```
-
-### 2. Install Docker
-
-```bash
-sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-### 3. Verify the Installation
-
-Test the Docker installation with:
-
-```bash
-sudo docker run hello-world
-```
-
-If the test runs successfully, Docker has been installed correctly.
-
----
-
-## Check the Docker Version
-
-You can check the installed Docker version at any time by running:
-
-```bash
-docker --version
-```
-
-## Check Docker Compose
-
-If Docker Compose is installed, you can check its version with:
-
-```bash
 docker compose version
 ```
 
-## Summary
+### Docker Installation
 
-| Operating System | Installation                          |
-| ---------------- | ------------------------------------- |
-| Windows          | Docker Desktop                        |
-| macOS            | Docker Desktop                        |
-| Ubuntu / Debian  | Docker Engine + Docker Compose Plugin |
+Download and install Docker Desktop for your operating system:
 
-After successfully installing Docker, you can use it to create, run, and manage containers.
+[Download Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
+Docker Desktop includes Docker Engine and Docker Compose.
 
-### 7. Create your .env file
+After installation, verify that Docker is working correctly:
 
-### Linux / macOS / Git Bash
-
-```
-cp .env.example .env
-```
-### Windows (CMD)
-
-```
-copy .env.example .env
-```
-
-### Windows (PowerShell)
-
-```
-Copy-Item .env.example .env
-```
-
-### 3. Configure your .env
-
-Open the .env file and fill in your value:
-
-GEMINI_API_KEY=your-api-key-here
-
-## Notes
-
-Make sure your `.env` file is not committed to Git. Add it to `.gitignore`:
-
-```
-gitignore.env
-```
-
-If the API key is missing or invalid, the application will not be able to connect to the Gemini API.
-
-## 6. Create database migrations
 ```bash
-  python manage.py makemigrations
+docker --version
 ```
 
-## 7. Apply database migrations
+## Installation
+
+### 1. Clone the Repository
+
+Clone the repository and navigate into the project directory:
+
 ```bash
-  python manage.py migrate
+git clone https://github.com/Pradi8/videoflix
+cd videoflix
 ```
 
-## 8. Create a superuser (admin account)
+### 2. Create the `.env` File
+
+Create a `.env` file based on the provided `.env.template` file.
+
+#### Linux / macOS / Git Bash
+
 ```bash
-  python manage.py createsuperuser
+cp .env.template .env
 ```
 
-## 9. Start the development server
+#### Windows CMD
+
+```cmd
+copy .env.template .env
+```
+
+#### Windows PowerShell
+
+```powershell
+Copy-Item .env.template .env
+```
+
+### 3. Configure the `.env` File
+
+Open the `.env` file and configure the required environment variables.
+
+Make sure your `.env` file is not committed to Git. Add it to your `.gitignore` file:
+
+```gitignore
+.env
+```
+
+### 4. Build and Start the Application
+
+Build the Docker image and start all required containers:
+
 ```bash
-  python manage.py runserver  
+docker compose up --build
 ```
-  The project will be running at http://127.0.0.1:8000/
 
+To run the containers in the background:
 
-# Project Structure
+```bash
+docker compose up --build -d
 ```
+
+The application will be available at:
+
+```text
+http://127.0.0.1:8000/
+```
+
+### 5. Apply Database Migrations
+
+If database migrations are not applied automatically, run:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+> **Note:** The Django service is named `web` in the `docker-compose.yml`.
+
+### 6. Create a Superuser
+
+To create a Django superuser for accessing the Django Admin Panel, run:
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+Follow the instructions in the terminal to enter the username, email address, and password.
+
+The Django Admin Panel will be available at:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+### 7. Upload Videos
+
+Videos can be uploaded and managed through the **Django Admin Panel**.
+
+1. Open:
+
+   ```text
+   http://127.0.0.1:8000/admin/
+   ```
+
+2. Log in with your superuser credentials.
+3. Upload and manage videos through the admin interface.
+
+The uploaded videos are processed and made available for streaming in different resolutions.
+
+---
+
+## Docker Commands
+
+### Start the Application
+
+```bash
+docker compose up
+```
+
+### Start in the Background
+
+```bash
+docker compose up -d
+```
+
+### Rebuild the Containers
+
+```bash
+docker compose up --build
+```
+
+### Stop the Application
+
+```bash
+docker compose down
+```
+
+### Stop Containers and Remove Volumes
+
+```bash
+docker compose down -v
+```
+
+### View Container Logs
+
+```bash
+docker compose logs
+```
+
+### View Logs in Real Time
+
+```bash
+docker compose logs -f
+```
+
+---
+
+## Project Structure
+
+```text
 auth_app/
 ├── api/
 │   ├── authentication.py
@@ -322,21 +248,77 @@ auth_app/
 │   ├── serializers.py
 │   ├── urls.py
 │   └── views.py
+
 videoflix/
 ├── api/
 │   ├── serializers.py
 │   ├── urls.py
 │   └── views.py
 ├── services/
-│   └──hls.py 
+│   └── hls.py
 ├── models.py
 ├── signals.py
-├── tasks.py
+└── tasks.py
+
 core/
-├── settings.py
+└── settings.py
 
-manage.py <br>
-requirements.txt <br>
+manage.py
+requirements.txt
+docker-compose.yml
+backend.Dockerfile
+backend.entrypoint.sh
+.env.template
 README.md
+```
 
+---
+
+## Development
+
+The application runs inside Docker containers. This ensures that the required services and dependencies are provided consistently across different development environments.
+
+The application uses:
+
+- **Django REST Framework** for the API
+- **PostgreSQL** for database management
+- **Redis** for background processing and/or caching
+- **FFmpeg** for video processing and transcoding
+- **HLS** for adaptive video streaming
+- **Docker** for containerized development and deployment
+
+Videos are processed into multiple resolutions to provide different playback quality options.
+
+---
+
+## Access
+
+Once the application is running, you can access:
+
+**Application:**
+
+```text
+http://127.0.0.1:8000/
+```
+
+**Django Admin Panel:**
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+---
+
+## Stopping the Application
+
+To stop all running containers:
+
+```bash
+docker compose down
+```
+
+To stop the containers and remove their volumes:
+
+```bash
+docker compose down -v
 ```
