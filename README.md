@@ -249,6 +249,9 @@ auth_app/
 │   ├── urls.py
 │   └── views.py
 
+core/
+├──  settings.py
+
 videoflix/
 ├── api/
 │   ├── serializers.py
@@ -258,10 +261,15 @@ videoflix/
 │   └── hls.py
 ├── models.py
 ├── signals.py
-└── tasks.py
+├── tasks.py
 
-core/
-└── settings.py
+templates/
+├── emails/
+│   ├── confirm.html
+│   ├── password_reset.html
+
+utils/
+└──email.py
 
 manage.py
 requirements.txt

@@ -44,7 +44,7 @@ class RegistrationView(APIView):
             send_email_user(
                 subject="Confirm your email",
                 template_name="emails/confirm.html",
-                context={"user": user, "url": f"http://127.0.0.1:8000/api/activate/{uidb64}/{token}/"},
+                context={"user": user, "url": f"http://127.0.0.1:5500/pages/auth/activate.html?uid={uidb64}&token={token}"},
                 to_email=user.email
             )
             
