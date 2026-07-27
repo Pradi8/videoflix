@@ -1,9 +1,10 @@
 import os
-from django.db.models.signals import post_save
+import shutil
+from django.conf import settings
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.files import File
 import django_rq
-from videoflix.service.hls import HLSService
 from .models import Video
 from utils.thumbnail import generate_thumbnail
 
@@ -50,3 +51,32 @@ def generate_video_hls(sender, instance, created, **kwargs):
             "videoflix.tasks.generate_hls_task",
             instance.id
         )
+        
+
+@receiver(post_delete, sender=Video)
+def delete_video_files(sender, instance, **kwargs):
+    """Delete all files related to a video after the database object is deleted."""
+
+    # Delete original video
+    if instance.video_file:
+        video_path = instance.video_file.path
+
+        if os.path.isfile(video_path):
+            os.remove(video_path)
+
+    # Delete thumbnail
+    if instance.thumbnail_url:
+        thumbnail_path = instance.thumbnail_url.path
+
+        if os.path.isfile(thumbnail_path):
+            os.remove(thumbnail_path)
+
+    # Delete HLS directory
+    hls_directory = os.path.join(
+        settings.MEDIA_ROOT,
+        "movies",
+        str(instance.pk)
+    )
+
+    if os.path.isdir(hls_directory):
+        shutil.rmtree(hls_directory)
