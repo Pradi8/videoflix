@@ -34,6 +34,8 @@ The application is fully containerized using Docker and Docker Compose.
 
 The project consists of the following main components:
 
+- **Django** version 6.0.3 as the web framework
+- **Python** version 3.12.7 as the programming language
 - **Django REST Framework** for the REST API
 - **PostgreSQL** for database management
 - **Redis** for background job queuing
@@ -149,24 +151,6 @@ The application will be available at:
 http://127.0.0.1:8000/
 ```
 
-### 5. Apply Database Migrations
-
-If database migrations are not applied automatically, run:
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
-> **Note:** The Django service is named `web` in the `docker-compose.yml`.
-
-### 6. Create a Superuser
-
-To create a Django superuser for accessing the Django Admin Panel, run:
-
-```bash
-docker compose exec web python manage.py createsuperuser
-```
-
 Follow the instructions in the terminal to enter the username, email address, and password.
 
 The Django Admin Panel will be available at:
@@ -204,6 +188,24 @@ docker compose up
 
 ```bash
 docker compose up -d
+```
+
+### Apply Database Migrations
+
+If database migrations are not applied automatically, run:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+> **Note:** The Django service is named `web` in the `docker-compose.yml`.
+
+### Create a Superuser
+
+To create a Django superuser for accessing the Django Admin Panel, run:
+
+```bash
+docker compose exec web python manage.py createsuperuser
 ```
 
 ### Rebuild the Containers
@@ -278,41 +280,6 @@ backend.Dockerfile
 backend.entrypoint.sh
 .env.template
 README.md
-```
-
----
-
-## Development
-
-The application runs inside Docker containers. This ensures that the required services and dependencies are provided consistently across different development environments.
-
-The application uses:
-
-- **Django REST Framework** for the API
-- **PostgreSQL** for database management
-- **Redis** for background processing and/or caching
-- **FFmpeg** for video processing and transcoding
-- **HLS** for adaptive video streaming
-- **Docker** for containerized development and deployment
-
-Videos are processed into multiple resolutions to provide different playback quality options.
-
----
-
-## Access
-
-Once the application is running, you can access:
-
-**Application:**
-
-```text
-http://127.0.0.1:8000/
-```
-
-**Django Admin Panel:**
-
-```text
-http://127.0.0.1:8000/admin/
 ```
 
 ---
