@@ -283,17 +283,3 @@ README.md
 ```
 
 ---
-
-## Stopping the Application
-
-To stop all running containers:
-
-```bash
-docker compose down
-```
-
-To stop the containers and remove their volumes:
-
-```bash
-docker compose down -v
-```
