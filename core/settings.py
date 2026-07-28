@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from logging import config
+from decouple import config, Csv
 from pathlib import Path
 from datetime import timedelta
 import os
@@ -72,11 +73,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in config("CORS_ALLOWED_ORIGINS", default="").split(",")
-    if origin.strip()
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="",
+    cast=Csv(),
+)
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -98,7 +99,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
