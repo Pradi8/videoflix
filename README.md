@@ -159,7 +159,7 @@ The Django Admin Panel will be available at:
 http://127.0.0.1:8000/admin/
 ```
 
-### 7. Upload Videos
+### 5. Upload Videos
 
 Videos can be uploaded and managed through the **Django Admin Panel**.
 
