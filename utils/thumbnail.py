@@ -6,8 +6,6 @@ def generate_thumbnail(video_path, time="00:00:01"):
     Extracts a frame from the video (default: second 1)
     The default frame is taken at the 1-second mark.
     """
-    # Create a temporary JPG file where FFmpeg will save the thumbnail. 
-    # delete=False keeps the file after closing so it can be used later.
     temp_thumb = NamedTemporaryFile(suffix=".jpg", delete=False)
     temp_thumb.close()
 
@@ -29,16 +27,12 @@ def generate_thumbnail(video_path, time="00:00:01"):
         temp_thumb.name
     ]
 
-    # Execute the FFmpeg command.
-    # stdout and stderr are captured so errors can be checked manually.
-
     result = subprocess.run(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
-    # If FFmpeg fails, raise an exception with the error message.
     if result.returncode != 0:
         raise Exception(result.stderr.decode())
 

@@ -7,9 +7,7 @@ class VideoSerializer(serializers.ModelSerializer):
     Serializer for the Video model.
     - Serializes the Video model fields and generates dynamic URLs for thumbnail and HLS playlist.
     """
-    # Use a custom method to generate the thumbnail URL dynamically.
     thumbnail_url = serializers.SerializerMethodField()
-    # Use a custom method to generate the HLS URL dynamically.
     hls_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -18,15 +16,11 @@ class VideoSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove the fields from the serializer output if it exists.
         self.fields.pop('video_file', None)
         self.fields.pop('hls_path', None)  
 
     def get_thumbnail_url(self, obj):
         if obj.thumbnail_url:
-            # Build an absolute URL including the domain and protocol. 
-            # Example: /media/thumbnails/image.jpg becomes: 
-            # http://localhost:8000/media/thumbnails/image.jpg
             return self.context["request"].build_absolute_uri(
                 obj.thumbnail_url.url
             )

@@ -27,7 +27,6 @@ class RegistrationView(APIView):
         data = {}
         if serializer.is_valid():
             user = serializer.save()
-            # Generate email verification token
             token = default_token_generator.make_token(user)
 
             # Encode user ID for use in URL
@@ -40,7 +39,6 @@ class RegistrationView(APIView):
                 "token": str(token)
             }
 
-            # Send activation email with activation link
             send_email_user(
                 subject="Confirm your email",
                 template_name="emails/confirm.html",
@@ -77,14 +75,12 @@ class ActivateAccountView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        # Validate activation token
         if not default_token_generator.check_token(user, token):
             return Response(
                 {"error": "Invalid token"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Activate user account
         user.is_active = True
         user.save()
 
@@ -143,14 +139,12 @@ class LogoutView(APIView):
     """ 
     Logs out the user by deleting authentication cookies.
     """
-    # Ensures the user is authenticated and a refresh token cookie is present
     permission_classes = [IsAuthenticated, HasRefreshCookie]
     
     def post(self, request):
         # Get refresh token from cookies
         refresh_token = request.COOKIES.get("refresh_token")
 
-        # If a refresh token exists, blacklist it so it can no longer be used
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)
@@ -223,9 +217,9 @@ class PasswortResetEmailView(APIView):
             user = User.objects.get(email=email)
             # Encode user id to uidb64
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            # Generate password reset token
+            
             token = default_token_generator.make_token(user)
-            # Send email
+            
             send_email_user(
                 subject="Reset your password",
                 template_name="emails/password_reset.html",
@@ -233,7 +227,6 @@ class PasswortResetEmailView(APIView):
                 to_email=user.email
             )
         except User.DoesNotExist:
-            # do nothing to prevent user enumeration
             pass 
 
         return Response(

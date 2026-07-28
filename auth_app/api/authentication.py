@@ -8,7 +8,6 @@ class CookieJWTAuthentication(JWTAuthentication):
     """
 
     def authenticate(self, request):
-        # Get the access token from the browser cookie
         token = request.COOKIES.get("access_token")
 
         if not token:

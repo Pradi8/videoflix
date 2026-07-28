@@ -57,7 +57,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove default 'username' field from parent serializer
         if "username" in self.fields:
             self.fields.pop('username')
 
